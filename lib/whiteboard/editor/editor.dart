@@ -3,6 +3,10 @@ import 'package:Rememober/whiteboard/editor/canvas.dart';
 import 'package:Rememober/whiteboard/editor/stroke.dart';
 
 class WhiteboardEditor extends StatefulWidget {
+  final onExit;
+
+  WhiteboardEditor({@required this.onExit});
+
   @override
   _WhiteboardEditorState createState() => _WhiteboardEditorState();
 }
@@ -33,10 +37,47 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return WhiteboardCanvas(
-      strokes: _strokes,
-      onPanStart: _onPanStart,
-      onPanUpdate: _onPanUpdate,
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: Icon(Icons.close),
+            onPressed: widget.onExit,
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.edit,
+              color: Colors.black,
+            ),
+            onPressed: () => setState(() {
+              _currentPaint = blackPenPaint;
+            }),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.edit,
+              color: Colors.red,
+            ),
+            onPressed: () => setState(() {
+              _currentPaint = redPenPaint;
+            }),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.highlight,
+              color: Colors.yellow,
+            ),
+            onPressed: () => setState(() {
+              _currentPaint = yellowHighlighterPaint;
+            }),
+          ),
+        ],
+      ),
+      body: WhiteboardCanvas(
+        strokes: _strokes,
+        onPanStart: _onPanStart,
+        onPanUpdate: _onPanUpdate,
+      ),
     );
   }
 }

@@ -25,15 +25,28 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text("TITLE"),
       ),
-      body: WhiteboardEditor(),
+      body: Text("HELLO"),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => print("Pressed"),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => WhiteboardEditor(
+                onExit: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+          );
+        },
         tooltip: 'Test',
-        child: Icon(Icons.help),
+        child: Icon(Icons.edit),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
