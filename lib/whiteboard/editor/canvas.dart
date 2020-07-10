@@ -5,11 +5,13 @@ class WhiteboardCanvas extends StatelessWidget {
   final strokes;
   final onPanStart;
   final onPanUpdate;
+  final onPanEnd;
 
   WhiteboardCanvas({
     @required this.strokes,
     @required this.onPanStart,
     @required this.onPanUpdate,
+    @required this.onPanEnd,
   });
 
   @override
@@ -21,6 +23,7 @@ class WhiteboardCanvas extends StatelessWidget {
       ),
       onPanStart: onPanStart,
       onPanUpdate: onPanUpdate,
+      onPanEnd: onPanEnd,
     );
   }
 }

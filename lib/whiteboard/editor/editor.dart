@@ -1,37 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:Rememober/whiteboard/editor/canvas.dart';
 import 'package:Rememober/whiteboard/editor/stroke.dart';
-
-class ToolBar extends StatefulWidget {
-  final currentTool;
-  final onToolChange;
-
-  ToolBar({@required this.currentTool, @required this.onToolChange});
-
-  @override
-  _ToolBarState createState() => _ToolBarState();
-}
-
-class _ToolBarState extends State<ToolBar> {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: toolToIcon.keys
-          .map((tool) => IconButton(
-                icon: Icon(
-                  toolToIcon[tool],
-                  color: widget.currentTool == tool
-                      ? Colors.lightBlue
-                      : Colors.black,
-                ),
-                onPressed: () => setState(() {
-                  widget.onToolChange(tool);
-                }),
-              ))
-          .toList(),
-    );
-  }
-}
+import 'package:Rememober/whiteboard/editor/toolbar.dart';
 
 class WhiteboardEditor extends StatefulWidget {
   final onExit;
@@ -46,33 +16,40 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
   double _currentThickness = 5.0;
   Color _currentColor = Colors.black;
   Tool _currentTool = Tool.Pen;
-  Paint _currentPaint = genPenPaint(Colors.black, 5.0);
+  Paint _currentPaint;
   final _strokes = <Stroke>[];
+
+  _WhiteboardEditorState() {
+    _currentPaint = buildPenPaint(_currentColor, _currentThickness);
+  }
 
   _onPanStart(DragStartDetails details) {
     final localPos = details.localPosition;
-    final currentPath = Path();
-    currentPath.moveTo(localPos.dx, localPos.dy);
-    setState(() {
-      if (writable(_currentTool)) {
+    if (isWritable(_currentTool)) {
+      final currentPath = Path();
+      currentPath.moveTo(localPos.dx, localPos.dy);
+      final paint =
+          _currentTool == Tool.Pen ? _currentPaint : yellowHighlighterPaint;
+      setState(() {
         _strokes.add(Stroke(
           path: currentPath,
-          paint:
-              _currentTool == Tool.Pen ? _currentPaint : yellowHighlighterPaint,
+          paint: paint,
         ));
-      }
-    });
+      });
+    }
   }
 
   _onPanUpdate(DragUpdateDetails details) {
     final localPos = details.localPosition;
-    final currentPath = _strokes.last.path;
-    if (writable(_currentTool)) {
+    if (isWritable(_currentTool)) {
+      final currentPath = _strokes.last.path;
       setState(() {
         currentPath.lineTo(localPos.dx, localPos.dy);
       });
     }
   }
+
+  _onPanEnd(DragEndDetails details) {}
 
   @override
   Widget build(BuildContext context) {
@@ -81,49 +58,24 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
         iconTheme: IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
         actions: [
-          DropdownButton<double>(
-            value: _currentThickness,
-            iconEnabledColor: Colors.black,
-            iconDisabledColor: Colors.grey,
-            iconSize: 24,
-            dropdownColor: Colors.white,
-            underline: Container(height: 2, color: Colors.black54),
+          ThicknessDropdown(
+            thickness: _currentThickness,
             onChanged: (double newValue) {
               setState(() {
                 _currentThickness = newValue;
-                _currentPaint = genPenPaint(_currentColor, _currentThickness);
+                _currentPaint = buildPenPaint(_currentColor, _currentThickness);
               });
             },
-            items: thicknesses.map((double e) {
-              return DropdownMenuItem<double>(
-                value: e,
-                child: Text(e.toInt().toString() + "px"),
-              );
-            }).toList(),
           ),
           Container(width: 10),
-          DropdownButton<Color>(
-            value: _currentColor,
-            iconEnabledColor: Colors.black,
-            iconDisabledColor: Colors.grey,
-            iconSize: 0,
-            dropdownColor: Colors.white,
-            underline: Container(
-              height: 2,
-              color: Colors.black54,
-            ),
+          ColorDropdown(
+            color: _currentColor,
             onChanged: (Color e) {
               setState(() {
                 _currentColor = e;
-                _currentPaint = genPenPaint(_currentColor, _currentThickness);
+                _currentPaint = buildPenPaint(_currentColor, _currentThickness);
               });
             },
-            items: colors.map((Color e) {
-              return DropdownMenuItem<Color>(
-                value: e,
-                child: Container(height: 3, width: 50, color: e),
-              );
-            }).toList(),
           ),
           Container(width: 10),
           ToolBar(
@@ -146,6 +98,7 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
         strokes: _strokes,
         onPanStart: _onPanStart,
         onPanUpdate: _onPanUpdate,
+        onPanEnd: _onPanEnd,
       ),
     );
   }
