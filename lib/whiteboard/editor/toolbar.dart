@@ -30,8 +30,8 @@ enum Tool {
 Map<Tool, IconData> toolToIcon = {
   Tool.Pen: Icons.edit,
   Tool.Highlighter: Icons.highlight,
-  Tool.StrokeEraser: Icons.bug_report,
-  Tool.ZoneEraser: Icons.bug_report,
+  Tool.StrokeEraser: Icons.crop_7_5,
+  Tool.ZoneEraser: Icons.remove_circle,
   Tool.StrokeMove: Icons.open_with,
   Tool.ZoneMove: Icons.open_with,
 };

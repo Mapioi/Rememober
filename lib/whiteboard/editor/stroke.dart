@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Stroke {
-  final Path path;
+  Path path;
   final Paint paint;
 
   Stroke({@required this.path, @required this.paint});
@@ -9,7 +9,7 @@ class Stroke {
 
 final yellowHighlighterPaint = Paint()
   ..isAntiAlias = true
-  ..style = PaintingStyle.stroke
+  ..style = PaintingStyle.fill
   ..strokeCap = StrokeCap.square
   ..strokeJoin = StrokeJoin.round
   ..strokeWidth = 100.0
@@ -18,7 +18,7 @@ final yellowHighlighterPaint = Paint()
 Paint buildPenPaint(Color color, double thickness) {
   return Paint()
     ..isAntiAlias = true
-    ..style = PaintingStyle.stroke
+    ..style = PaintingStyle.fill
     ..strokeCap = StrokeCap.round
     ..strokeJoin = StrokeJoin.round
     ..color = color
