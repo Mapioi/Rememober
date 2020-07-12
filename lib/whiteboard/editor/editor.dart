@@ -20,6 +20,7 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
   Paint _currentPaint;
   Offset _previousPos;
   Offset _previousPerp;
+  bool _firstStroke;
 
   final _strokes = <Stroke>[];
 
@@ -46,7 +47,7 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
     final localPos = details.localPosition;
     if (isWritable(_currentTool)) {
       final dv = localPos - _previousPos;
-      Offset perp = Offset.fromDirection(dv.direction + pi / 2, 2.5);
+      Offset perp = Offset.fromDirection(dv.direction + pi / 2, 6);
 
       _previousPerp ??= perp;
       final poly = [
@@ -57,28 +58,20 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
       ];
 
       setState(() {
-        _strokes.last.path.addPolygon(poly, true);
+        // first polygon needs to be closed
+        _strokes.last.path.addPolygon(poly, _firstStroke);
         _previousPos = localPos;
         _previousPerp = perp;
+        _firstStroke = false;
       });
     } else if (_currentTool == Tool.StrokeEraser) {
-      double diag = 1.0; // TODO put somewhere else
-      Offset topLeft = Offset(-diag, -diag);
-      Offset topRight = Offset(diag, -diag);
-      _strokes.forEach((stroke) {
-        List<bool> square = [
-          localPos + topLeft,
-          localPos + topRight,
-          localPos - topLeft,
-          localPos - topRight
-        ].map((offset) => stroke.path.contains(offset)).toList();
-        if (square.contains(true) && square.contains(false)) {
-          // tf
+      for (Stroke stroke in _strokes) {
+        if (stroke.path.contains(localPos)) {
           setState(() {
             stroke.path.reset();
           });
         }
-      });
+      }
     } else if (_currentTool == Tool.ZoneEraser) {
       Path eraseZone = Path()
         ..addOval(
@@ -96,7 +89,12 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
     }
   }
 
-  _onPanEnd(DragEndDetails details) {}
+  _onPanEnd(DragEndDetails details) {
+    setState(() {
+      _firstStroke = true;
+      _previousPerp = null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
