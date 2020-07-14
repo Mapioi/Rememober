@@ -19,6 +19,7 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
   Tool _currentTool = Tool.Pen;
   Paint _currentPaint;
   Offset _previousPos;
+  double _currentLength ;
 
   final _strokes = <Stroke>[];
 
@@ -41,6 +42,7 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
           ),
         );
       });
+      _currentLength = 0.0;
       _previousPos = localPos;
     }
   }
@@ -60,7 +62,7 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
         localPos - perp,
         _previousPos - perp,
       ];
-      final joint = Path()..addPolygon(poly, true);
+      final joint = Path()..addPolygon(poly, false);
       final point = Path()
         ..addOval(
           Rect.fromCircle(
@@ -68,6 +70,7 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
             radius: _currentThickness / 2,
           ),
         );
+
       final currentLine = Path.combine(
         PathOperation.union,
         joint,
@@ -76,6 +79,11 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
 
       _previousPos = localPos;
 
+      if (_currentLength > 100.0) {
+        _strokes.add(Stroke(path: Path(), paint: _currentPaint));
+        _currentLength = 0.0;
+      }
+
       setState(() {
         _strokes.last.path = Path.combine(
           PathOperation.union,
@@ -83,6 +91,8 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
           currentLine,
         );
       });
+
+      _currentLength += dv.distance;
     } else if (_currentTool == Tool.StrokeEraser) {
       for (Stroke stroke in _strokes) {
         if (stroke.path.contains(localPos)) {
