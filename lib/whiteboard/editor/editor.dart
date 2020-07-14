@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:Rememober/whiteboard/editor/canvas.dart';
 import 'package:Rememober/whiteboard/editor/stroke.dart';
 import 'package:Rememober/whiteboard/editor/toolbar.dart';
@@ -19,8 +19,6 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
   Tool _currentTool = Tool.Pen;
   Paint _currentPaint;
   Offset _previousPos;
-  Offset _previousPerp;
-  bool _firstStroke;
 
   final _strokes = <Stroke>[];
 
@@ -34,12 +32,16 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
       setState(() {
         _strokes.add(
           Stroke(
-            path: Path(),
+            path: Path()
+              ..addOval(Rect.fromCircle(
+                center: localPos,
+                radius: _currentThickness / 2,
+              )),
             paint: _currentPaint,
           ),
         );
-        _previousPos = localPos;
       });
+      _previousPos = localPos;
     }
   }
 
@@ -47,22 +49,39 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
     final localPos = details.localPosition;
     if (isWritable(_currentTool)) {
       final dv = localPos - _previousPos;
-      Offset perp = Offset.fromDirection(dv.direction + pi / 2, 6);
+      Offset perp = Offset.fromDirection(
+        dv.direction + pi / 2,
+        _currentThickness / 2,
+      );
 
-      _previousPerp ??= perp;
       final poly = [
-        _previousPos + _previousPerp,
+        _previousPos + perp,
         localPos + perp,
         localPos - perp,
-        _previousPos - _previousPerp
+        _previousPos - perp,
       ];
+      final joint = Path()..addPolygon(poly, true);
+      final point = Path()
+        ..addOval(
+          Rect.fromCircle(
+            center: localPos,
+            radius: _currentThickness / 2,
+          ),
+        );
+      final currentLine = Path.combine(
+        PathOperation.union,
+        joint,
+        point,
+      );
+
+      _previousPos = localPos;
 
       setState(() {
-        // first polygon needs to be closed
-        _strokes.last.path.addPolygon(poly, _firstStroke);
-        _previousPos = localPos;
-        _previousPerp = perp;
-        _firstStroke = false;
+        _strokes.last.path = Path.combine(
+          PathOperation.union,
+          _strokes.last.path,
+          currentLine,
+        );
       });
     } else if (_currentTool == Tool.StrokeEraser) {
       for (Stroke stroke in _strokes) {
@@ -89,12 +108,7 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
     }
   }
 
-  _onPanEnd(DragEndDetails details) {
-    setState(() {
-      _firstStroke = true;
-      _previousPerp = null;
-    });
-  }
+  _onPanEnd(DragEndDetails details) {}
 
   @override
   Widget build(BuildContext context) {
