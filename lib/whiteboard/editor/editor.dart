@@ -16,24 +16,25 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
   double _currentThickness = 5.0;
   Color _currentColor = Colors.black;
   Tool _currentTool = Tool.Pen;
-  Paint _currentPaint;
   final _strokes = <Stroke>[];
 
-  _WhiteboardEditorState() {
-    _currentPaint = buildPenPaint(_currentColor, _currentThickness);
+  Paint get _currentPaint {
+    if (_currentTool == Tool.Pen) {
+      return buildPenPaint(_currentColor, _currentThickness);
+    }
+    if (_currentTool == Tool.Highlighter) {
+      return yellowHighlighterPaint;
+    }
+    throw ArgumentError("Selected tool is not writable but requests a paint");
   }
 
   _onPanStart(DragStartDetails details) {
     final localPos = details.localPosition;
     if (isWritable(_currentTool)) {
-      final currentPath = Path();
-      currentPath.moveTo(localPos.dx, localPos.dy);
-      final paint =
-          _currentTool == Tool.Pen ? _currentPaint : yellowHighlighterPaint;
       setState(() {
         _strokes.add(Stroke(
-          path: currentPath,
-          paint: paint,
+          offsets: [localPos],
+          paint: _currentPaint,
         ));
       });
     }
@@ -42,9 +43,8 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
   _onPanUpdate(DragUpdateDetails details) {
     final localPos = details.localPosition;
     if (isWritable(_currentTool)) {
-      final currentPath = _strokes.last.path;
       setState(() {
-        currentPath.lineTo(localPos.dx, localPos.dy);
+        _strokes.last.offsets.add(localPos);
       });
     }
   }
@@ -63,24 +63,26 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
             onChanged: (double newValue) {
               setState(() {
                 _currentThickness = newValue;
-                _currentPaint = buildPenPaint(_currentColor, _currentThickness);
               });
             },
           ),
           Container(width: 10),
           ColorDropdown(
             color: _currentColor,
-            onChanged: (Color e) {
+            onChanged: (Color newColor) {
               setState(() {
-                _currentColor = e;
-                _currentPaint = buildPenPaint(_currentColor, _currentThickness);
+                _currentColor = newColor;
               });
             },
           ),
           Container(width: 10),
           ToolBar(
             currentTool: _currentTool,
-            onToolChange: (tool) => {setState(() => _currentTool = tool)},
+            onToolChange: (tool) {
+              setState(() {
+                _currentTool = tool;
+              });
+            },
           ),
           IconButton(
             icon: Icon(Icons.autorenew),
