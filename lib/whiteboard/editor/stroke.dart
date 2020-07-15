@@ -8,7 +8,6 @@ class Stroke {
 }
 
 final yellowHighlighterPaint = Paint()
-  ..isAntiAlias = true
   ..style = PaintingStyle.stroke
   ..strokeCap = StrokeCap.square
   ..strokeJoin = StrokeJoin.round
@@ -17,7 +16,6 @@ final yellowHighlighterPaint = Paint()
 
 Paint buildPenPaint(Color color, double thickness) {
   return Paint()
-    ..isAntiAlias = true
     ..style = PaintingStyle.stroke
     ..strokeCap = StrokeCap.round
     ..strokeJoin = StrokeJoin.round
