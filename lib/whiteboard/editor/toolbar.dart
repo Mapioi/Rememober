@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
-const colors = [
+const penColors = [
   Colors.blue,
   Colors.red,
   Colors.green,
   Colors.black,
 ];
+// Must contain defaultPenColor
 
-const thicknesses = [
+final Color defaultPenColor = penColors.last;
+
+const penThicknesses = [
   1.0,
   2.0,
   3.0,
@@ -17,6 +20,32 @@ const thicknesses = [
   20.0,
   40.0,
 ];
+
+final double defaultPenThickness = penThicknesses[3];
+
+Color transparentize(Color c) => Color.fromRGBO(c.red, c.green, c.blue, 0.5);
+
+final highlighterColors = [
+  transparentize(Colors.red),
+  transparentize(Colors.orange),
+  transparentize(Colors.yellow),
+  transparentize(Colors.green),
+  transparentize(Colors.teal),
+  transparentize(Colors.blue),
+  transparentize(Colors.deepPurple),
+];
+
+final Color defaultHighlighterColor = highlighterColors.first;
+
+const highlighterThicknesses = [
+  20.0,
+  40.0,
+  60.0,
+  80.0,
+  100.0,
+];
+
+final double defaultHighlighterThickness = highlighterThicknesses[2];
 
 enum Tool {
   Pen,
@@ -71,9 +100,14 @@ class _ToolBarState extends State<ToolBar> {
 
 class ThicknessDropdown extends StatelessWidget {
   final double thickness;
+  final List<double> thicknesses;
   final onChanged;
 
-  ThicknessDropdown({@required this.thickness, @required this.onChanged});
+  ThicknessDropdown({
+    @required this.thickness,
+    @required this.thicknesses,
+    @required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -97,9 +131,14 @@ class ThicknessDropdown extends StatelessWidget {
 
 class ColorDropdown extends StatelessWidget {
   final Color color;
+  final List<Color> colors;
   final onChanged;
 
-  const ColorDropdown({@required this.color, @required this.onChanged});
+  const ColorDropdown({
+    @required this.color,
+    @required this.colors,
+    @required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {

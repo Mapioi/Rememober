@@ -11,13 +11,13 @@ class WhiteboardPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (final stroke in strokes) {
       final offsets = stroke.offsets;
-      if (stroke.paint == yellowHighlighterPaint) {
+      if (isHighlighterPaint(stroke.paint)) {
         var path = Path();
         if (offsets.length > 1) {
           final dv = offsets[1] - offsets[0];
           final perp = Offset.fromDirection(
             dv.direction + pi / 2,
-            40,
+            stroke.paint.strokeWidth / 2,
           );
           var leftPos = offsets[0] - perp;
           var rightPos = offsets[0] + perp;
@@ -43,7 +43,7 @@ class WhiteboardPainter extends CustomPainter {
             leftPos = leftPos2;
             rightPos = rightPos2;
           }
-          canvas.drawPath(path, yellowHighlighterPaint);
+          canvas.drawPath(path, stroke.paint);
         }
       } else {
         if (offsets.length == 1) {

@@ -7,9 +7,12 @@ class Stroke {
   Stroke({@required this.offsets, @required this.paint});
 }
 
-final yellowHighlighterPaint = Paint()
-  ..style = PaintingStyle.fill
-  ..color = Color.fromRGBO(255, 193, 7, 0.5);
+Paint buildHighlighterPaint(Color color, double thickness) {
+  return Paint()
+    ..style = PaintingStyle.fill
+    ..strokeWidth = thickness
+    ..color = color;
+}
 
 Paint buildPenPaint(Color color, double thickness) {
   return Paint()
@@ -18,4 +21,8 @@ Paint buildPenPaint(Color color, double thickness) {
     ..strokeJoin = StrokeJoin.round
     ..color = color
     ..strokeWidth = thickness;
+}
+
+bool isHighlighterPaint(Paint paint) {
+  return paint.style == PaintingStyle.fill;
 }

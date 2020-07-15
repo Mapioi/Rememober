@@ -13,24 +13,38 @@ class WhiteboardEditor extends StatefulWidget {
 }
 
 class _WhiteboardEditorState extends State<WhiteboardEditor> {
-  double _currentThickness = 5.0;
-  Color _currentColor = Colors.black;
-  Tool _currentTool = Tool.Pen;
+  Map<Tool, double> _thicknesses = {
+    Tool.Pen: defaultPenThickness,
+    Tool.Highlighter: defaultHighlighterThickness,
+  };
+  Map<Tool, Color> _colors = {
+    Tool.Pen: defaultPenColor,
+    Tool.Highlighter: defaultHighlighterColor,
+  };
+  Tool _tool = Tool.Pen;
   final _strokes = <Stroke>[];
 
+  Color get _color => _colors[_tool];
+
+  set _color(Color c) => _colors[_tool] = c;
+
+  double get _thickness => _thicknesses[_tool];
+
+  set _thickness(double t) => _thicknesses[_tool] = t;
+
   Paint get _currentPaint {
-    if (_currentTool == Tool.Pen) {
-      return buildPenPaint(_currentColor, _currentThickness);
+    if (_tool == Tool.Pen) {
+      return buildPenPaint(_color, _thickness);
     }
-    if (_currentTool == Tool.Highlighter) {
-      return yellowHighlighterPaint;
+    if (_tool == Tool.Highlighter) {
+      return buildHighlighterPaint(_color, _thickness);
     }
     throw ArgumentError("Selected tool is not writable but requests a paint");
   }
 
   _onPanStart(DragStartDetails details) {
     final localPos = details.localPosition;
-    if (isWritable(_currentTool)) {
+    if (isWritable(_tool)) {
       setState(() {
         _strokes.add(Stroke(
           offsets: [localPos],
@@ -42,7 +56,7 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
 
   _onPanUpdate(DragUpdateDetails details) {
     final localPos = details.localPosition;
-    if (isWritable(_currentTool)) {
+    if (isWritable(_tool)) {
       setState(() {
         _strokes.last.offsets.add(localPos);
       });
@@ -59,28 +73,32 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
         backgroundColor: Colors.white,
         actions: [
           ThicknessDropdown(
-            thickness: _currentThickness,
+            thickness: _thickness,
+            // TODO use provider to clean up this mess
+            thicknesses:
+                _tool == Tool.Pen ? penThicknesses : highlighterThicknesses,
             onChanged: (double newValue) {
               setState(() {
-                _currentThickness = newValue;
+                _thickness = newValue;
               });
             },
           ),
           Container(width: 10),
           ColorDropdown(
-            color: _currentColor,
+            color: _color,
+            colors: _tool == Tool.Pen ? penColors : highlighterColors,
             onChanged: (Color newColor) {
               setState(() {
-                _currentColor = newColor;
+                _color = newColor;
               });
             },
           ),
           Container(width: 10),
           ToolBar(
-            currentTool: _currentTool,
+            currentTool: _tool,
             onToolChange: (tool) {
               setState(() {
-                _currentTool = tool;
+                _tool = tool;
               });
             },
           ),
