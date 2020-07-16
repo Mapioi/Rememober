@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:Rememober/whiteboard/editor/canvas.dart';
 import 'package:Rememober/whiteboard/editor/stroke.dart';
@@ -14,12 +15,14 @@ class WhiteboardEditor extends StatefulWidget {
 
 class _WhiteboardEditorState extends State<WhiteboardEditor> {
   Map<Tool, double> _thicknesses = {
-    Tool.Pen: defaultPenThickness,
-    Tool.Highlighter: defaultHighlighterThickness,
+    Tool.Pen: defaultThicknesses[Tool.Pen],
+    Tool.Highlighter: defaultThicknesses[Tool.Highlighter],
+    Tool.ZoneEraser: defaultThicknesses[Tool.ZoneEraser],
+    Tool.StrokeEraser: defaultThicknesses[Tool.StrokeEraser],
   };
   Map<Tool, Color> _colors = {
-    Tool.Pen: defaultPenColor,
-    Tool.Highlighter: defaultHighlighterColor,
+    Tool.Pen: defaultColors[Tool.Pen],
+    Tool.Highlighter: defaultColors[Tool.Highlighter],
   };
   Tool _tool = Tool.Pen;
   final _ids = StrokeIdGenerator();
@@ -78,23 +81,22 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
           ThicknessDropdown(
             thickness: _thickness,
             // TODO use provider to clean up this mess
-            thicknesses:
-                _tool == Tool.Pen ? penThicknesses : highlighterThicknesses,
-            onChanged: (double newValue) {
+            thicknesses: thicknesses[_tool] ?? [],
+            onChanged: thicknesses.containsKey(_tool) ? (double newValue) {
               setState(() {
                 _thickness = newValue;
               });
-            },
+            } : null,
           ),
           Container(width: 10),
           ColorDropdown(
             color: _color,
-            colors: _tool == Tool.Pen ? penColors : highlighterColors,
-            onChanged: (Color newColor) {
+            colors: colors[_tool] ?? [],
+            onChanged: colors.containsKey(_tool) ? (Color newColor) {
               setState(() {
                 _color = newColor;
               });
-            },
+            } : null,
           ),
           Container(width: 10),
           ToolBar(
@@ -107,9 +109,10 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
           ),
           IconButton(
             icon: Icon(Icons.autorenew),
-            onPressed: () => setState(() {
-              _strokes.clear();
-            }),
+            onPressed: () =>
+                setState(() {
+                  _strokes.clear();
+                }),
           ),
           IconButton(
             icon: Icon(Icons.close),

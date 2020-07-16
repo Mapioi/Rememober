@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const penColors = [
+const _penColors = [
   Colors.blue,
   Colors.red,
   Colors.green,
@@ -8,9 +8,9 @@ const penColors = [
 ];
 // Must contain defaultPenColor
 
-final Color defaultPenColor = penColors.last;
+final Color _defaultPenColor = _penColors.last;
 
-const penThicknesses = [
+const _penThicknesses = [
   1.0,
   2.0,
   3.0,
@@ -21,23 +21,23 @@ const penThicknesses = [
   40.0,
 ];
 
-final double defaultPenThickness = penThicknesses[3];
+final double _defaultPenThickness = _penThicknesses[3];
 
-Color transparentize(Color c) => Color.fromRGBO(c.red, c.green, c.blue, 0.5);
+Color _transparentize(Color c) => Color.fromRGBO(c.red, c.green, c.blue, 0.5);
 
-final highlighterColors = [
-  transparentize(Colors.red),
-  transparentize(Colors.orange),
-  transparentize(Colors.yellow),
-  transparentize(Colors.green),
-  transparentize(Colors.teal),
-  transparentize(Colors.blue),
-  transparentize(Colors.deepPurple),
+final _highlighterColors = [
+  _transparentize(Colors.red),
+  _transparentize(Colors.orange),
+  _transparentize(Colors.yellow),
+  _transparentize(Colors.green),
+  _transparentize(Colors.teal),
+  _transparentize(Colors.blue),
+  _transparentize(Colors.deepPurple),
 ];
 
-final Color defaultHighlighterColor = highlighterColors.first;
+final Color _defaultHighlighterColor = _highlighterColors.first;
 
-const highlighterThicknesses = [
+const _highlighterThicknesses = [
   20.0,
   40.0,
   60.0,
@@ -45,7 +45,42 @@ const highlighterThicknesses = [
   100.0,
 ];
 
-final double defaultHighlighterThickness = highlighterThicknesses[2];
+final double _defaultHighlighterThickness = _highlighterThicknesses[2];
+
+const _eraserThicknesses = [
+  5.0,
+  10.0,
+  20.0,
+  40.0,
+  80.0,
+];
+
+final _defaultEraserThickness = _eraserThicknesses[2];
+
+const Map<Tool, List<double>> thicknesses = {
+  Tool.Pen: _penThicknesses,
+  Tool.Highlighter: _highlighterThicknesses,
+  Tool.StrokeEraser: _eraserThicknesses,
+  Tool.ZoneEraser: _eraserThicknesses,
+};
+
+final Map<Tool, List<Color>> colors = {
+  Tool.Pen: _penColors,
+  Tool.Highlighter: _highlighterColors,
+};
+
+final Map<Tool, double> defaultThicknesses = {
+  Tool.Pen: _defaultPenThickness,
+  Tool.Highlighter: _defaultHighlighterThickness,
+  Tool.ZoneEraser: _defaultEraserThickness,
+  Tool.StrokeEraser: _defaultEraserThickness,
+};
+
+final Map<Tool, Color> defaultColors = {
+  Tool.Pen: _defaultPenColor,
+  Tool.Highlighter: _defaultHighlighterColor,
+};
+
 
 enum Tool {
   Pen,
@@ -67,6 +102,8 @@ Map<Tool, IconData> toolToIcon = {
 
 bool isWritable(tool) => tool == Tool.Pen || tool == Tool.Highlighter;
 
+bool isErasable(tool) => tool == Tool.ZoneEraser || tool == Tool.StrokeEraser;
+
 class ToolBar extends StatefulWidget {
   final currentTool;
   final onToolChange;
@@ -82,17 +119,19 @@ class _ToolBarState extends State<ToolBar> {
   Widget build(BuildContext context) {
     return Row(
       children: toolToIcon.keys
-          .map((tool) => IconButton(
-                icon: Icon(
-                  toolToIcon[tool],
-                  color: widget.currentTool == tool
-                      ? Colors.lightBlue
-                      : Colors.black,
-                ),
-                onPressed: () => setState(() {
+          .map((tool) =>
+          IconButton(
+            icon: Icon(
+              toolToIcon[tool],
+              color: widget.currentTool == tool
+                  ? Colors.lightBlue
+                  : Colors.black,
+            ),
+            onPressed: () =>
+                setState(() {
                   widget.onToolChange(tool);
                 }),
-              ))
+          ))
           .toList(),
     );
   }
