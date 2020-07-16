@@ -5,10 +5,16 @@ import 'package:Rememober/whiteboard/editor/stroke.dart';
 class WhiteboardPainter extends CustomPainter {
   final Map<int, Stroke> strokes;
 
-  WhiteboardPainter(this.strokes);
+  final stonkStrokes ;
+
+  WhiteboardPainter(this.strokes, [this.stonkStrokes]);
 
   @override
   void paint(Canvas canvas, Size size) {
+    for (final path in stonkStrokes) {
+      canvas.drawPath(path, buildHighlighterPaint(Colors.red, 0));
+    }
+
     for (final stroke in strokes.values) {
       final offsets = stroke.offsets;
       if (isHighlighterPaint(stroke.paint)) {

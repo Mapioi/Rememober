@@ -6,12 +6,14 @@ class WhiteboardCanvas extends StatelessWidget {
   final onPanStart;
   final onPanUpdate;
   final onPanEnd;
+  final stonkStrokes;
 
   WhiteboardCanvas({
     @required this.strokes,
     @required this.onPanStart,
     @required this.onPanUpdate,
     @required this.onPanEnd,
+    this.stonkStrokes,
   });
 
   @override
@@ -19,7 +21,7 @@ class WhiteboardCanvas extends StatelessWidget {
     return GestureDetector(
       child: CustomPaint(
         size: MediaQuery.of(context).size,
-        painter: WhiteboardPainter(strokes),
+        painter: WhiteboardPainter(strokes, stonkStrokes),
       ),
       onPanStart: onPanStart,
       onPanUpdate: onPanUpdate,
