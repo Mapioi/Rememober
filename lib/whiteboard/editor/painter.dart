@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:Rememober/whiteboard/editor/stroke.dart';
 
 class WhiteboardPainter extends CustomPainter {
-  final List<Stroke> strokes;
+  final Map<int, Stroke> strokes;
 
   WhiteboardPainter(this.strokes);
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (final stroke in strokes) {
+    for (final stroke in strokes.values) {
       final offsets = stroke.offsets;
       if (isHighlighterPaint(stroke.paint)) {
         var path = Path();

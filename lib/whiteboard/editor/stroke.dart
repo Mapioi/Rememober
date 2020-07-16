@@ -7,6 +7,12 @@ class Stroke {
   Stroke({@required this.offsets, @required this.paint});
 }
 
+class StrokeIdGenerator {
+  var _count = 0;
+
+  int generateId() => _count++;
+}
+
 Paint buildHighlighterPaint(Color color, double thickness) {
   return Paint()
     ..style = PaintingStyle.fill

@@ -22,7 +22,9 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
     Tool.Highlighter: defaultHighlighterColor,
   };
   Tool _tool = Tool.Pen;
-  final _strokes = <Stroke>[];
+  final _ids = StrokeIdGenerator();
+  final _strokes = Map<int, Stroke>();
+  int _id;
 
   Color get _color => _colors[_tool];
 
@@ -45,11 +47,12 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
   _onPanStart(DragStartDetails details) {
     final localPos = details.localPosition;
     if (isWritable(_tool)) {
+      _id = _ids.generateId();
       setState(() {
-        _strokes.add(Stroke(
+        _strokes[_id] = Stroke(
           offsets: [localPos],
           paint: _currentPaint,
-        ));
+        );
       });
     }
   }
@@ -58,7 +61,7 @@ class _WhiteboardEditorState extends State<WhiteboardEditor> {
     final localPos = details.localPosition;
     if (isWritable(_tool)) {
       setState(() {
-        _strokes.last.offsets.add(localPos);
+        _strokes[_id].offsets.add(localPos);
       });
     }
   }
